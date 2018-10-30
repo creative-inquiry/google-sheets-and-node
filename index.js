@@ -5,6 +5,7 @@ const { google } = require('googleapis');
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const TOKEN_PATH = 'token.json';
+const SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms';
 
 // Load client secrets from a local file.
 fs.readFile('credentials.json', (err, content) => {
@@ -71,7 +72,7 @@ function getNewToken(oAuth2Client, callback) {
 function listMajors(auth) {
     const sheets = google.sheets({ version: 'v4', auth });
     sheets.spreadsheets.values.get({
-        spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+        spreadsheetId: SPREADSHEET_ID,
         range: 'Class Data!A2:E',
     }, (err, res) => {
         if (err) return console.log('The API returned an error: ' + err);
