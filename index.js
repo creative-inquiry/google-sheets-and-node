@@ -2,16 +2,21 @@ const fs = require('fs');
 const readline = require('readline');
 const { google } = require('googleapis');
 
+const http = require('http') // added
+
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const TOKEN_PATH = 'token.json';
 const SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms';
 
+// server setup
+const PORT = 3000
+
 // Load client secrets from a local file.
 fs.readFile('credentials.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Sheets API.
-    authorize(JSON.parse(content), listMajors);
+    authorize(JSON.parse(content), createServerAndSheetsObj); // changed
 });
 
 /**
@@ -64,27 +69,26 @@ function getNewToken(oAuth2Client, callback) {
     });
 }
 
-/**
- * Prints the names and majors of students in a sample spreadsheet:
- * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
- * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
- */
-function listMajors(auth) {
-    const sheets = google.sheets({ version: 'v4', auth });
-    sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'Class Data!A2:E',
-    }, (err, res) => {
-        if (err) return console.log('The API returned an error: ' + err);
-        const rows = res.data.values;
-        if (rows.length) {
-            console.log('Name, Major:');
-            // Print columns A and E, which correspond to indices 0 and 4.
-            rows.map((row) => {
-                console.log(`${row[0]}, ${row[4]}`);
-            });
-        } else {
-            console.log('No data found.');
+// removed listMajors function
+
+// new
+function createServerAndSheetsObj(oAuth2Client) {
+    
+    const sheets = google.sheets({ version: 'v4', oAuth2Client });
+
+    const server = http.createServer(options, addDataToSpreadsheet)
+
+    server.listen(PORT, (err) => {
+
+        if (err) {
+            return console.log('something bad happened', err)
         }
-    });
+
+        console.log(`server is listening on ${PORT}`)
+    })
+
+}
+
+function addDataToSpreadsheet(request, response) {
+    console.log();
 }
