@@ -5,18 +5,18 @@ const { google } = require('googleapis');
 const http = require('http') // added
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
-const SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms';
+const SPREADSHEET_ID = '12gsgDLjMMjDIRlbcaKuUYY8rth_ugIsH4zI-Ns98PFc';
 
 // server setup
-const PORT = 3000
+const PORT = 3000;
 
 // Load client secrets from a local file.
 fs.readFile('credentials.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Sheets API.
-    authorize(JSON.parse(content), createServerAndSheetsObj); // changed
+    authorize(JSON.parse(content), createServerAndGoogleSheetsObj); // changed
 });
 
 /**
@@ -72,23 +72,64 @@ function getNewToken(oAuth2Client, callback) {
 // removed listMajors function
 
 // new
-function createServerAndSheetsObj(oAuth2Client) {
+function createServerAndGoogleSheetsObj(oAuth2Client) {
     
-    const sheets = google.sheets({ version: 'v4', oAuth2Client });
+    const sheets = google.sheets({ version: 'v4', auth: oAuth2Client });
 
-    const server = http.createServer(options, addDataToSpreadsheet)
+    const server = http.createServer((request, response) => {
+
+        if (request.method === 'POST') {
+            
+            // request object is a 'stream' so we must wait for it to finish
+            let body = '';
+            let bodyParsed = {};
+
+            request.on('data', chunk => {
+                body += chunk;
+            });
+
+            request.on('end', () => {
+                bodyParsed = JSON.parse(body);
+                addDataToSpreadsheet(bodyParsed.data, sheets);
+            });
+
+        }
+
+        response.end('Request received');
+
+    });
 
     server.listen(PORT, (err) => {
-
         if (err) {
             return console.log('something bad happened', err)
         }
-
         console.log(`server is listening on ${PORT}`)
-    })
+    });
 
 }
 
-function addDataToSpreadsheet(request, response) {
-    console.log();
+function addDataToSpreadsheet(data, googleSheetsObj) {
+
+    let values = [
+        data,
+        // Additional rows ...
+    ];
+
+    let resource = {
+        values,
+    };
+
+    googleSheetsObj.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Sheet1',
+        valueInputOption: 'RAW',
+        resource,
+    }, (err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(`${result.data.updates.updatedCells} cells appended.`);
+        }
+    });
+
 }
