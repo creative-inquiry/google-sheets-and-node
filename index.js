@@ -17,7 +17,7 @@ const PORT = 3000;
 fs.readFile('credentials.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Sheets API.
-    authorize(JSON.parse(content), createServerAndGoogleSheetsObj); // changed
+    authorize(JSON.parse(content), createServerAndGoogleSheetsObj);
 });
 
 /**
