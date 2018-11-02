@@ -91,12 +91,15 @@ function createServerAndGoogleSheetsObj(oAuth2Client) {
 
             request.on('end', () => {
                 bodyParsed = JSON.parse(body);
-                addDataToSpreadsheet(bodyParsed.data, sheets);
+                saveDataAndSendResponse(bodyParsed.data, sheets, response);
             });
 
-        }
+        } else {
 
-        response.end('Request received');
+            // normal GET response for testing the endpoint
+            response.end('Request received');
+
+        }
 
     });
 
@@ -109,7 +112,7 @@ function createServerAndGoogleSheetsObj(oAuth2Client) {
 
 }
 
-function addDataToSpreadsheet(data, googleSheetsObj) {
+function saveDataAndSendResponse(data, googleSheetsObj, response) {
 
     // data is an array of arrays
     // each inner array is a row
@@ -126,8 +129,11 @@ function addDataToSpreadsheet(data, googleSheetsObj) {
     }, (err, result) => {
         if (err) {
             console.log(err);
+            response.end('An error occurd while attempting to save data. See console output.');
         } else {
-            console.log(`${result.data.updates.updatedCells} cells appended.`);
+            const responseText = `${result.data.updates.updatedCells} cells appended.`;
+            console.log(responseText);
+            response.end(responseText);
         }
     });
 
