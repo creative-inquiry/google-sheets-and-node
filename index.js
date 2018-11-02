@@ -111,6 +111,9 @@ function createServerAndGoogleSheetsObj(oAuth2Client) {
 
 function addDataToSpreadsheet(data, googleSheetsObj) {
 
+    // data is an array of arrays
+    // each inner array is a row
+    // each array element (of an inner array) is a column
     let resource = {
         values: data,
     };
