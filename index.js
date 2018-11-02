@@ -2,7 +2,7 @@ const fs = require('fs');
 const readline = require('readline');
 const { google } = require('googleapis');
 
-const http = require('http') // added
+const http = require('http');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
@@ -70,9 +70,6 @@ function getNewToken(oAuth2Client, callback) {
     });
 }
 
-// removed listMajors function
-
-// new
 function createServerAndGoogleSheetsObj(oAuth2Client) {
     
     const sheets = google.sheets({ version: 'v4', auth: oAuth2Client });
