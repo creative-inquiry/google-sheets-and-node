@@ -8,6 +8,7 @@ const http = require('http') // added
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 const SPREADSHEET_ID = '12gsgDLjMMjDIRlbcaKuUYY8rth_ugIsH4zI-Ns98PFc';
+const RANGE = 'Sheet1';
 
 // server setup
 const PORT = 3000;
@@ -110,18 +111,13 @@ function createServerAndGoogleSheetsObj(oAuth2Client) {
 
 function addDataToSpreadsheet(data, googleSheetsObj) {
 
-    let values = [
-        data,
-        // Additional rows ...
-    ];
-
     let resource = {
-        values,
+        values: data,
     };
 
     googleSheetsObj.spreadsheets.values.append({
         spreadsheetId: SPREADSHEET_ID,
-        range: 'Sheet1',
+        range: RANGE,
         valueInputOption: 'RAW',
         resource,
     }, (err, result) => {
